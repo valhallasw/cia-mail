@@ -11,8 +11,7 @@ from email.Header import Header, decode_header
 from xml.sax.saxutils import escape
 from xmlrpclib import ServerProxy
 
-fp = open('test')
-e = Parser().parse(fp)
+e = Parser().parse(sys.stdin)
 
 # Stupid email library. This parses all headers into nice unicode strings...
 headers = dict([(header, Header(*decode_header(e[header])[0]).__unicode__()) for header in e.keys()])
