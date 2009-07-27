@@ -1,0 +1,4 @@
+Usage:
+cia-mail.py <project name> < email
+
+Normal usage would be a .forward where a mailing list e-mail gets piped to the sscript.
