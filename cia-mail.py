@@ -18,8 +18,10 @@ headers = dict([(header, Header(*decode_header(e[header])[0]).__unicode__()) for
 
 author = headers['From']
 author = author[:author.find('<')].strip() # remove email address
+author = author.strip("\"\'")
 
 subject = headers['Subject']
+subject = subject.replace('\n', ' ')
 
 message = """
 <message>
