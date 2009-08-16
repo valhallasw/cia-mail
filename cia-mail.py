@@ -14,7 +14,7 @@ from xmlrpclib import ServerProxy
 e = Parser().parse(sys.stdin)
 
 # Stupid email library. This parses all headers into nice unicode strings...
-headers = dict([(header, Header(*decode_header(e[header])[0]).__unicode__()) for header in e.keys()])
+headers = dict([(header, ' '.join([text.decode(encoding if encoding else 'ascii') for (text, encoding) in decode_header(e[header])])) for header in e.keys()])
 
 author = headers['From']
 author = author[:author.find('<')].strip() # remove email address
