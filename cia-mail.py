@@ -4,77 +4,28 @@
 #
 # Distributed under the terms of the MIT license.
 #
+import sys
+from optparse import OptionParser
 
-import sys, time
-from email.Parser import Parser
-from email.Header import Header, decode_header
-from xml.sax.saxutils import escape
-from xmlrpclib import ServerProxy
+get_class_by_name = lambda name: reduce(getattr, name.split('.')[1:], __import__(name.split('.')[0]))
 
-verbose = ("-v" in sys.argv)
+parser = OptionParser(usage = "usage: %prog [options] <cia project name>")
+parser.add_option("-v", "--verbose",
+                  action="store_true",
+                  default = False,
+                  help = "Show XMLRPC request and response")
+parser.add_option("-c", "--class",
+                  dest="classname",
+                  default="cia.GenericMailToCIA",
+                  help = "Define class to use as mail parser")
+(options, args) = parser.parse_args()
+if len(args) != 1:
+    parser.print_help()
+    sys.exit()
 
-class GenericMailToCIA(object):
-    _CIAmessage = """<message>
-  <generator>
-    <name>CIA Python client for mail</name>
-    <version>0.2</version>
-  </generator>
-  <source>
-    <project>%(project)s</project>
-  </source>
-  <timestamp>%(timestamp)s</timestamp>
-  <body>
-    <commit>
-      <author>%(author)s</author>
-      <log>%(subject)s</log>
-    </commit>
-  </body>
-</message>""" 
+RunClass = get_class_by_name(options.classname)
+parms  = (sys.stdin, args[0], options.verbose)
+if options.verbose:
+    print "Running %s%r.commit()" % (RunClass, parms)
 
-    def __init__(self, message, project, verbose=False):
-        self._parse_message(message)
-        self.project = project
-        self.verbose = verbose
-
-    def _parse_message(self, message):
-        e = Parser().parse(message)
-
-        # Stupid email library. This parses all headers into nice unicode strings...
-        self.headers = dict([(header, ' '.join([text.decode(encoding or 'ascii') for (text, encoding) in decode_header(e[header])])) for header in e.keys()])
-
-    @property
-    def author(self):
-        author = self.headers['From']
-        author = author[:author.find('<')].strip() # remove email address
-        author = author.strip("\"\'")
-        return author
-
-    @property
-    def subject(self):
-        subject = self.headers['Subject']
-        subject = subject.replace('\n', ' ')
-        return subject
-    
-    @property
-    def timestamp(self):
-        return int(time.time())
-
-    @property
-    def CIAmessage(self):
-        return self._CIAmessage % self
-
-    def commit(self):
-        if self.verbose:
-            print self.CIAmessage
-        result = ServerProxy('http://cia.vc/RPC2').hub.deliver(self.CIAmessage)
-        if verbose:
-            print result
-
-    def __getitem__(self, attr):
-        data = getattr(self, attr)
-        if isinstance(data, basestring):
-            data = escape(data)
-        return data
-
-if __name__=="__main__":
-    GenericMailToCIA(sys.stdin, sys.argv[1], "-v" in sys.argv).commit()
+RunClass(*parms).commit()
