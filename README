@@ -1,4 +1,40 @@
-Usage:
-cia-mail.py <project name> < email
+  Usage:
+  cia-mail.py <project name> < email
 
 Normal usage would be a .forward where a mailing list e-mail gets piped to the script.
+
+You can create your own class based on cia.GenericMailToCIA or cia.RemoveMLNameToCIA. This can be used in the following way:
+
+  cia-mail.py -c cia.RemoveMLNameToCIA <project name> < email
+
+To assist in debugging, there is a verbose option available:
+
+  cia-mail.py -v -c cia.RemoveMLNameToCIA <project name> < email
+
+
+Although it is possible to use the standard cia.vc IRC formatter, you can also use one of the following examples:
+
+For cia.GenericMailToCIA and cia.RemoveMLNameToCIA:
+<rule>
+  <match path="project">(...)</match>
+  <formatter medium="irc">
+     <format appliesTo="CommitToIRC">
+       <color fg='white'><project/>:</color>   
+       <autoHide><color fg='green'><author/></color></autoHide><b>:</b>
+       <log/>
+     </format>
+  </formatter>
+</rule>
+
+For sf.SFBugMailToCIA:
+<rule>
+  <match path="project">pywikipedia-bugs</match>
+  <formatter medium="irc">
+    <format appliesTo="CommitToIRC">
+      <color fg='white'><project/>:</color>   
+      <autoHide><color fg='green'><author/></color></autoHide><b>:</b>
+      <log/>
+      <b>*</b> https://sourceforge.net/support/tracker.php?aid=<text path="/message/body/commit/itemid"/>
+    </format>
+  </formatter>
+</rule>
