@@ -76,5 +76,3 @@ class GenericMailToCIA(object):
             data = escape(data)
         return data
 
-if __name__=="__main__":
-    GenericMailToCIA(sys.stdin, sys.argv[1], "-v" in sys.argv).commit()
