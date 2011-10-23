@@ -76,3 +76,9 @@ class GenericMailToCIA(object):
             data = escape(data)
         return data
 
+class RemoveMLNameToCIA(GenericMailToCIA):
+    @property
+    def subject(self):
+       import re
+       return re.sub(r'\[.+?\]', '', GenericMailToCIA.subject.fget(self)).strip()
+
