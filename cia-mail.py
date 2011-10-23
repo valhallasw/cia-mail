@@ -13,20 +13,8 @@ from xmlrpclib import ServerProxy
 
 verbose = ("-v" in sys.argv)
 
-e = Parser().parse(sys.stdin)
-
-# Stupid email library. This parses all headers into nice unicode strings...
-headers = dict([(header, ' '.join([text.decode(encoding or 'ascii') for (text, encoding) in decode_header(e[header])])) for header in e.keys()])
-
-author = headers['From']
-author = author[:author.find('<')].strip() # remove email address
-author = author.strip("\"\'")
-
-subject = headers['Subject']
-subject = subject.replace('\n', ' ')
-
-message = """
-<message>
+class GenericMailToCIA(object):
+    _CIAmessage = """<message>
   <generator>
     <name>CIA Python client for mail</name>
     <version>0.2</version>
@@ -41,16 +29,52 @@ message = """
       <log>%(subject)s</log>
     </commit>
   </body>
-</message>""" % {
-    'project'  : escape(sys.argv[1]),
-    'timestamp': int(time.time()),
-    'author'   : escape(author.encode('utf-8')),
-    'subject'  : escape(subject.encode('utf-8'))
-    }
+</message>""" 
 
-if verbose:
-   print message
+    def __init__(self, message, project, verbose=False):
+        self._parse_message(message)
+        self.project = project
+        self.verbose = verbose
 
-result = ServerProxy('http://cia.vc/RPC2').hub.deliver(message)
-if verbose:
-   print result
+    def _parse_message(self, message):
+        e = Parser().parse(message)
+
+        # Stupid email library. This parses all headers into nice unicode strings...
+        self.headers = dict([(header, ' '.join([text.decode(encoding or 'ascii') for (text, encoding) in decode_header(e[header])])) for header in e.keys()])
+
+    @property
+    def author(self):
+        author = self.headers['From']
+        author = author[:author.find('<')].strip() # remove email address
+        author = author.strip("\"\'")
+        return author
+
+    @property
+    def subject(self):
+        subject = self.headers['Subject']
+        subject = subject.replace('\n', ' ')
+        return subject
+    
+    @property
+    def timestamp(self):
+        return int(time.time())
+
+    @property
+    def CIAmessage(self):
+        return self._CIAmessage % self
+
+    def commit(self):
+        if self.verbose:
+            print self.CIAmessage
+        result = ServerProxy('http://cia.vc/RPC2').hub.deliver(self.CIAmessage)
+        if verbose:
+            print result
+
+    def __getitem__(self, attr):
+        data = getattr(self, attr)
+        if isinstance(data, basestring):
+            data = escape(data)
+        return data
+
+if __name__=="__main__":
+    GenericMailToCIA(sys.stdin, sys.argv[1], "-v" in sys.argv).commit()
