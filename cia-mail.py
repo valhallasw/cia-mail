@@ -1,4 +1,4 @@
-#!/usr/local/bin/python
+#!/usr/bin/env python
 #
 # Copyright (C) Merlijn van Deen <valhallasw@gmail.com>, 2009
 #
