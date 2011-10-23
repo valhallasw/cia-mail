@@ -38,3 +38,16 @@ For sf.SFBugMailToCIA:
     </format>
   </formatter>
 </rule>
+
+for gmane.MLwithGmaneUrlToCIA:
+<rule>
+  <match path="project">pywikipedia-mail-test</match>
+  <formatter medium="irc">
+    <format appliesTo="CommitToIRC">
+    <color fg='white'><project/>:</color>   
+    <autoHide><color fg='green'><author/></color></autoHide><b>:</b>
+    <log/>
+    <b>*</b> <url/>
+  </format>
+ </formatter>
+</rule>

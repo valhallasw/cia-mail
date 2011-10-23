@@ -29,8 +29,12 @@ class GenericMailToCIA(object):
 
     def __init__(self, message, project, verbose=False):
         self._parse_message(message)
+        self.initialize()
         self.project = project
         self.verbose = verbose
+
+    def initialize(self):
+        pass
 
     def _parse_message(self, message):
         e = Parser().parse(message)
