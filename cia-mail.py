@@ -9,7 +9,7 @@ from optparse import OptionParser
 
 get_class_by_name = lambda name: reduce(getattr, name.split('.')[1:], __import__(name.split('.')[0]))
 
-parser = OptionParser(usage = "usage: %prog [options] <cia project name>")
+parser = OptionParser(usage = "usage: %prog [options] <cia project name>  < email")
 parser.add_option("-v", "--verbose",
                   action="store_true",
                   default = False,
