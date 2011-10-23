@@ -1,9 +1,5 @@
-#!/usr/bin/env python
-#
-# Copyright (C) Merlijn van Deen <valhallasw@gmail.com>, 2009
-#
+# Copyright (C) Merlijn van Deen <valhallasw@gmail.com>, 2011
 # Distributed under the terms of the MIT license.
-#
 
 import cia
 
