@@ -11,6 +11,8 @@ from email.Header import Header, decode_header
 from xml.sax.saxutils import escape
 from xmlrpclib import ServerProxy
 
+verbose = ("-v" in sys.argv)
+
 e = Parser().parse(sys.stdin)
 
 # Stupid email library. This parses all headers into nice unicode strings...
@@ -46,5 +48,9 @@ message = """
     'subject'  : escape(subject.encode('utf-8'))
     }
 
-print message
-print ServerProxy('http://cia.vc/RPC2').hub.deliver(message)
+if verbose:
+   print message
+
+result = ServerProxy('http://cia.vc/RPC2').hub.deliver(message)
+if verbose:
+   print result
