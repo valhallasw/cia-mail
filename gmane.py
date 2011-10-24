@@ -28,12 +28,19 @@ class MLwithGmaneUrlToCIA(cia.RemoveMLNameToCIA):
     def initialize(self):
         cia.RemoveMLNameToCIA.initialize(self)
         c = httplib.HTTPConnection("news.gmane.org")
-        c.request("HEAD", "/find-root.php?" + urllib.urlencode(
-            {'message_id': self.headers['Message-ID']}))
+        href = "/find-root.php?" + urllib.urlencode({'message_id': self.headers['Message-ID']})
+        c.request("HEAD", href)
         r = c.getresponse()
         self.url = r.getheader('location')
-        self.threadid = self.url.split('/')[4]
+        if not self.url:
+            self.url = "http://news.gmane.org" + href 
+        try:
+            self.threadid = self.url.split('/')[4]
+        except IndexError:
+            self.threadid = ""
+
         try:
             self.msgid    = self.url.split('/')[5].split('=')[-1]
         except IndexError:
             self.msgid    = ''
+
